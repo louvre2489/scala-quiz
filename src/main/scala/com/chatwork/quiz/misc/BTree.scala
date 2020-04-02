@@ -1,99 +1,103 @@
 package com.chatwork.quiz.misc
 
 /**
- * [[BTree]]に格納される要素。
- */
+  * [[BTree]]に格納される要素。
+  */
 sealed trait Node {
 
   /**
-   * ノードが持つ値。
-   */
+    * ノードが持つ値。
+    */
   val value: Int
 
   /**
-   * ノード数。
-   */
+    * ノード数。
+    */
   val size: Int
 
   /**
-   * ノードが保持するすべての値の合計値。
-   */
+    * ノードが保持するすべての値の合計値。
+    */
   val sum: Int
 
   /**
-   * ノードが保持するすべての値の平均値。
-   */
+    * ノードが保持するすべての値の平均値。
+    */
   val avg: Double
 
   /**
-   * ノードが保持する最大値。
-   */
+    * ノードが保持する最大値。
+    */
   val max: Int
 
   /**
-   * ノードが保持する最小値。
-   */
+    * ノードが保持する最小値。
+    */
   val min: Int
 
   /**
-   * 指定した値を保持するノードを検索する。
-   *
-   * @param value 値
-   * @return ノード
-   */
+    * 指定した値を保持するノードを検索する。
+    *
+    * @param value 値
+    * @return ノード
+    */
   def find(value: Int): Option[Node]
 
 }
 
 /**
- * 枝を表す[[Node]]。
- *
- * @param left　左の[[Node]]
- * @param value 値
- * @param right 右の[[Node]]
- */
+  * 枝を表す[[Node]]。
+  *
+  * @param left　左の[[Node]]
+  * @param value 値
+  * @param right 右の[[Node]]
+  */
 case class Branch(left: Node, value: Int, right: Node) extends Node {
 
-  val size: Int = ???
+  val size: Int = left.size + right.size + 1
 
-  val sum: Int = ???
+  val sum: Int = left.value + right.value + this.value
 
-  val avg: Double = ???
+  val avg: Double = this.sum / this.size
 
-  val max: Int = ???
+  private val list = List(left.value, right.value, this.value)
 
-  val min: Int = ???
+  val max: Int = list.max
 
-  def find(value: Int): Option[Node] = ???
+  val min: Int = list.min
+
+  def find(value: Int): Option[Node] =
+    if (value == this.value) Some(this)
+    else left.find(value).orElse(right.find(value)).orElse(None)
 
 }
 
 /**
- * 葉を表す[[Node]]。
- *
- * @param value 値
- */
+  * 葉を表す[[Node]]。
+  *
+  * @param value 値
+  */
 case class Leaf(value: Int) extends Node {
 
-  val size: Int = ???
+  val size: Int = 1
 
-  val sum: Int = ???
+  val sum: Int = value
 
-  val avg: Double = ???
+  val avg: Double = value
 
-  val max: Int = ???
+  val max: Int = value
 
-  val min: Int = ???
+  val min: Int = value
 
-  def find(value: Int): Option[Node] = ???
+  def find(value: Int): Option[Node] = if (value == this.value) Some(this) else None
 
 }
 
 /**
- * 二分木データ構造。
- *
- * @param node 頂点のノード
- */
+  * 二分木データ構造。
+  *
+  * @param node 頂点のノード
+  */
 case class BTree(node: Node) {
 
   lazy val size: Int = node.size
@@ -111,17 +115,24 @@ case class BTree(node: Node) {
 }
 
 /**
- * [[BTree]]のコンパニオンオブジェクト。
- */
+  * [[BTree]]のコンパニオンオブジェクト。
+  */
 object BTree {
 
   /**
-   * ファクトリメソッド。
-   *
-   * @param values ノードに格納する値の集合
-   * @return [[BTree]]
-   */
-  def apply(values: List[Int]): BTree = ???
+    * ファクトリメソッド。
+    *
+    * @param values ノードに格納する値の集合
+    * @return [[BTree]]
+    */
+  def apply(values: List[Int]): BTree = {
+    values match {
+      case value :: Nil => BTree(Leaf(value))
+      case _ => {
+        val (left, mid :: right) = values.splitAt(values.size / 2)
+        BTree(Branch(apply(left).node, mid, apply(right).node))
+      }
+    }
+  }
 
 }
-
