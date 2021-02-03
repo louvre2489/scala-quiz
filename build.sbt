@@ -1,10 +1,17 @@
-name := "sandbox"
-
-version := "1.0"
-
-scalaVersion := "2.13.1"
-
-scalacOptions ++= Seq("-encoding", "UTF-8", "-feature", "-unchecked", "-deprecation")
-
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.1.1" % "test"
-
+lazy val root: Project = (project in file("."))
+  .settings(
+    organization := "com.chatwork",
+    name := "scala-quiz",
+    version := "1.0",
+    scalaVersion := "2.13.4",
+    scalacOptions ++= Seq(
+        "-encoding",
+        "UTF-8",
+        "-feature",
+        "-unchecked",
+        "-deprecation"
+      ),
+    libraryDependencies ++= Seq(
+        "org.scalatest" %% "scalatest" % "3.1.1" % Test
+      )
+  )
