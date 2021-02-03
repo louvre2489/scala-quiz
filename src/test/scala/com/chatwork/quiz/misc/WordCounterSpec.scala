@@ -20,4 +20,10 @@ class WordCounterSpec extends AnyFunSpec with Matchers {
     }
   }
 
+  describe("True WordCounter") {
+    it("should count words") {
+      WordCounter.trueCountWords()
+    }
+  }
+
 }
