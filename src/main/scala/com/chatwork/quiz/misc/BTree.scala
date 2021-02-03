@@ -54,18 +54,21 @@ sealed trait Node {
   */
 case class Branch(left: Node, value: Int, right: Node) extends Node {
 
-  val size: Int = ???
+  val size: Int = left.size + 1 + right.size
 
-  val sum: Int = ???
+  val sum: Int = left.sum + value + right.sum
 
-  val avg: Double = ???
+  val avg: Double = (left.avg + value + right.avg) / this.size
 
-  val max: Int = ???
+  val max: Int = Array(left.max, value, right.max).max
 
-  val min: Int = ???
+  val min: Int = Array(left.min, value, right.min).min
 
-  def find(value: Int): Option[Node] = ???
-
+  def find(value: Int): Option[Node] =
+    if (this.value == value)
+      Some(this)
+    else
+      left.find(value).fold(right.find(value))(Some(_))
 }
 
 /**
@@ -75,17 +78,17 @@ case class Branch(left: Node, value: Int, right: Node) extends Node {
   */
 case class Leaf(value: Int) extends Node {
 
-  val size: Int = ???
+  val size: Int = 1
 
-  val sum: Int = ???
+  val sum: Int = value
 
-  val avg: Double = ???
+  val avg: Double = value
 
-  val max: Int = ???
+  val max: Int = value
 
-  val min: Int = ???
+  val min: Int = value
 
-  def find(value: Int): Option[Node] = ???
+  def find(value: Int): Option[Node] = if (this.value == value) Some(this) else None
 
 }
 
@@ -121,6 +124,18 @@ object BTree {
     * @param values ノードに格納する値の集合
     * @return [[BTree]]
     */
-  def apply(values: List[Int]): BTree = ???
+  def apply(values: List[Int]): BTree = {
+
+    require(values.nonEmpty)
+
+    values.sorted match {
+      case Nil          => throw new UnsupportedOperationException
+      case value :: Nil => BTree(Leaf(value))
+      case _ => {
+        val (l, v :: r) = values.splitAt(values.size / 2)
+        BTree(Branch(apply(l).node, v, apply(r).node))
+      }
+    }
+  }
 
 }
